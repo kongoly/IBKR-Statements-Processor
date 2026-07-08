@@ -1,0 +1,111 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IBKR Statement Processor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+    HEADER
+    Simple top bar with the app name and a status message area.
+    The status message updates automatically when you upload files
+    or switch between views.
+  ============================================================ -->
+  <header>
+    <h1>📊 IBKR Statement Processor</h1>
+    <div id="status-bar" class="status-bar"></div>
+  </header>
+
+  <main>
+
+    <!-- ============================================================
+      DRAG AND DROP UPLOAD ZONE
+      Drag one or more IBKR CSV files here to import them.
+      You can also click to open a file picker.
+      Multiple files at once are supported.
+    ============================================================ -->
+    <div id="app-body">
+
+      <aside id="sidebar">
+        <!-- DRAG AND DROP UPLOAD ZONE moved here -->
+        <section id="upload-section">
+          <div id="drop-zone">
+            <div class="drop-icon">📂</div>
+            <p class="drop-title">Drag CSVs here</p>
+            <p class="drop-sub">or click to browse</p>
+            <input type="file" id="file-input" accept=".csv" multiple hidden />
+          </div>
+        </section>
+
+        <h2>Imported Months</h2>
+        <div id="months-list">
+          <!-- Populated by app.js when the page loads -->
+          <p class="empty-msg">No months imported yet.</p>
+        </div>
+      </aside>
+
+      <!-- ============================================================
+        MAIN CONTENT AREA
+        This area shows the selected month's data.
+        It switches between three views:
+          1. Welcome screen (default)
+          2. Month view (one month's sections and rows)
+          3. Year view (all months in a year side by side)
+      ============================================================ -->
+      <div id="content">
+
+        <!-- Welcome screen shown before any month is selected -->
+        <div id="welcome">
+          <div class="welcome-icon">📈</div>
+          <h2>Welcome to IBKR Statement Processor</h2>
+          <p>Import your IBKR monthly CSV files using the drop zone above.</p>
+          <p>Your data is saved locally and persists between sessions.</p>
+          <ul class="welcome-list">
+            <li>✅ Drag and drop one or multiple CSV files</li>
+            <li>✅ Color-coded rows matching your Excel rules</li>
+            <li>✅ All data saved to local database</li>
+            <li>✅ Access from PC or phone on same WiFi</li>
+            <li>✅ Push to Google Sheets (coming soon)</li>
+          </ul>
+        </div>
+
+        <!-- Month/Year data view — hidden until a month is selected -->
+        <div id="data-view" class="hidden">
+
+          <!-- View controls: switch between Month and Year view -->
+            <div id="view-controls">
+            <button id="btn-full-view"   class="view-btn active">Full Data</button>
+            <button id="btn-imp-view"    class="view-btn">Important Info</button>
+            <button id="btn-port-view"   class="view-btn">Portfolio</button>
+            <button id="btn-fin-view"    class="view-btn">Financial Summary</button>
+            <button id="btn-delete"      class="delete-btn">🗑 Delete Month</button>
+            
+            <!-- Layout toggle for Financial Summary -->
+            <div id="layout-toggle" class="hidden" style="margin-left: auto; display: flex; gap: 8px;">
+              <button id="btn-layout-table" class="view-btn active">Table View</button>
+              <button id="btn-layout-cards" class="view-btn">Card View</button>
+            </div>
+            </div>
+
+          <!-- The actual data table renders here -->
+          <div id="table-container"></div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Loading overlay — shown while uploading or fetching data -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
