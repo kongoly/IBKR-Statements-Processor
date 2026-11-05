@@ -178,4 +178,4 @@ function trimRight(arr) {
   return arr.slice(0, k + 1);
 }
 
-module.exports = { parseCSVFile };
+module.exports = { parseCSVFile, parseCSVLine };

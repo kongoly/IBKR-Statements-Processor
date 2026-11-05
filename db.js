@@ -15,9 +15,12 @@
 // ============================================================
 
 const Database = require('better-sqlite3');
+const fs = require('fs');
 const path = require('path');
 
-// Open (or create) the database file at: ibkr-app/data/ibkr.db
+// Open (or create) the database file at: data/ibkr.db
+// The data folder is gitignored, so on a fresh copy it doesn't exist yet: create it first.
+fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 const db = new Database(path.join(__dirname, 'data', 'ibkr.db'));
 
 // ============================================================
@@ -67,6 +70,37 @@ db.exec(`
     data         TEXT    NOT NULL,
     color        TEXT,
     FOREIGN KEY(section_id) REFERENCES sections(id)
+  );
+
+  -- ============================================================
+  -- TABLE: manual_conversions
+  -- Currency conversions done OUTSIDE of IBKR (e.g. at your bank
+  -- before wiring the money), entered by hand. They show up in
+  -- the Financial Summary's Conversions column next to IBKR ones.
+  -- Example: X ILS @ rate -> Y USD, converted at the bank, then wired in
+  -- ============================================================
+  CREATE TABLE IF NOT EXISTS manual_conversions (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    year         INTEGER NOT NULL,
+    month        INTEGER NOT NULL,
+    from_cur     TEXT    NOT NULL,
+    from_amount  REAL    NOT NULL,
+    to_cur       TEXT    NOT NULL,
+    to_amount    REAL    NOT NULL,
+    rate         REAL    NOT NULL,
+    note         TEXT
+  );
+
+  -- ============================================================
+  -- TABLE: settings
+  -- Values you type in yourself on the Net Worth page, e.g.
+  -- the USD/ILS rate and your bank balance in ILS.
+  -- updated_at remembers when you last changed each one.
+  -- ============================================================
+  CREATE TABLE IF NOT EXISTS settings (
+    key          TEXT PRIMARY KEY,
+    value        TEXT,
+    updated_at   TEXT DEFAULT (datetime('now'))
   );
 `);
 

@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IBKR Statement Processor</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Apply the saved light/dark choice before the page draws (no white flash) -->
+  <script>
+    try { if (localStorage.getItem('ibkr_theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+    try { if (localStorage.getItem('ibkr_sidebar') === 'closed') document.documentElement.classList.add('sidebar-closed'); } catch (e) {}
+  </script>
 </head>
 <body>
 
@@ -15,8 +20,18 @@
     or switch between views.
   ============================================================ -->
   <header>
-    <h1>📊 IBKR Statement Processor</h1>
-    <div id="status-bar" class="status-bar"></div>
+    <div class="header-left">
+      <button id="sidebar-toggle" class="theme-toggle" title="Show / hide the side panel">☰</button>
+      <h1>📊 IBKR Statement Processor</h1>
+    </div>
+    <div class="header-right">
+      <div id="status-bar" class="status-bar"></div>
+      <!-- Opens the Fetch from IBKR page (what to download) / copies everything to the Google Sheet -->
+      <button id="btn-dl-view" class="header-btn header-btn-main" title="Choose which months to download from IBKR">⬇ Fetch from IBKR</button>
+      <button id="btn-sheets-push" class="header-btn" title="Copy the Portfolio, monthly summary, positions, trades and cash activity to your Google Sheet">📤 Send to Sheets</button>
+      <a id="sheets-link" class="header-link hidden" target="_blank" rel="noopener">Open the Sheet ↗</a>
+      <button id="theme-toggle" class="theme-toggle" title="Switch light / dark mode"></button>
+    </div>
   </header>
 
   <main>
@@ -30,7 +45,14 @@
     <div id="app-body">
 
       <aside id="sidebar">
-        <!-- DRAG AND DROP UPLOAD ZONE moved here -->
+        <!-- Financial Summary (API), Activity, Insights: the months to show -->
+        <div id="sb-api">
+          <h2 class="sb-first">Show months</h2>
+          <div id="flex-months-list"><p class="empty-msg">Loading...</p></div>
+        </div>
+
+        <!-- Old Statements: CSV upload and the uploaded months -->
+        <div id="sb-old" class="hidden">
         <section id="upload-section">
           <div id="drop-zone">
             <div class="drop-icon">📂</div>
@@ -39,21 +61,19 @@
             <input type="file" id="file-input" accept=".csv" multiple hidden />
           </div>
         </section>
-
-        <h2>Imported Months</h2>
+        <h2>Uploaded months</h2>
         <div id="months-list">
           <!-- Populated by app.js when the page loads -->
           <p class="empty-msg">No months imported yet.</p>
+        </div>
         </div>
       </aside>
 
       <!-- ============================================================
         MAIN CONTENT AREA
-        This area shows the selected month's data.
-        It switches between three views:
-          1. Welcome screen (default)
-          2. Month view (one month's sections and rows)
-          3. Year view (all months in a year side by side)
+        Pages: Portfolio, Financial Summary (API) (default), Activity, Insights (all from IBKR downloads),
+        Fetch from IBKR (opened from the top bar: what to download), Old Statements (the uploaded CSVs).
+        The welcome screen only shows until the first page opens.
       ============================================================ -->
       <div id="content">
 
@@ -61,36 +81,24 @@
         <div id="welcome">
           <div class="welcome-icon">📈</div>
           <h2>Welcome to IBKR Statement Processor</h2>
-          <p>Import your IBKR monthly CSV files using the drop zone above.</p>
-          <p>Your data is saved locally and persists between sessions.</p>
-          <ul class="welcome-list">
-            <li>✅ Drag and drop one or multiple CSV files</li>
-            <li>✅ Color-coded rows matching your Excel rules</li>
-            <li>✅ All data saved to local database</li>
-            <li>✅ Access from PC or phone on same WiFi</li>
-            <li>✅ Push to Google Sheets (coming soon)</li>
-          </ul>
+          <p>Click "⬇ Fetch from IBKR" at the top, or drop monthly CSV statements on the upload box.</p>
+          <p>Your data stays on this computer.</p>
         </div>
 
-        <!-- Month/Year data view — hidden until a month is selected -->
+        <!-- Pages -->
         <div id="data-view" class="hidden">
 
-          <!-- View controls: switch between Month and Year view -->
-            <div id="view-controls">
-            <button id="btn-full-view"   class="view-btn active">Full Data</button>
-            <button id="btn-imp-view"    class="view-btn">Important Info</button>
+          <!-- Page buttons (Delete Month shows only on Old Statements for one uploaded month) -->
+          <div id="view-controls">
             <button id="btn-port-view"   class="view-btn">Portfolio</button>
-            <button id="btn-fin-view"    class="view-btn">Financial Summary</button>
+            <button id="btn-flex-view"   class="view-btn active">Financial Summary (API)</button>
+            <button id="btn-activity-view" class="view-btn">Activity</button>
+            <button id="btn-insights-view" class="view-btn">💡 Insights</button>
+            <button id="btn-fin-view"    class="view-btn view-btn-right">Old Statements</button>
             <button id="btn-delete"      class="delete-btn">🗑 Delete Month</button>
-            
-            <!-- Layout toggle for Financial Summary -->
-            <div id="layout-toggle" class="hidden" style="margin-left: auto; display: flex; gap: 8px;">
-              <button id="btn-layout-table" class="view-btn active">Table View</button>
-              <button id="btn-layout-cards" class="view-btn">Card View</button>
-            </div>
-            </div>
+          </div>
 
-          <!-- The actual data table renders here -->
+          <!-- The current page renders here -->
           <div id="table-container"></div>
 
         </div>
@@ -103,9 +111,12 @@
   <!-- Loading overlay — shown while uploading or fetching data -->
   <div id="loading-overlay" class="hidden">
     <div class="spinner"></div>
-    <p>Processing...</p>
+    <p id="loading-text">Processing...</p>
+    <button id="loading-stop" class="loading-stop hidden">■ Stop download</button>
   </div>
 
+  <script src="calc.js"></script>
   <script src="app.js"></script>
+  <script src="insights.js"></script>
 </body>
 </html>

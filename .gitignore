@@ -28,6 +28,16 @@ node_modules/
 # Never upload this under any circumstances.
 credentials.json
 
+# ── YOUR PERSONAL PATHS ──
+# paths.json says where YOUR .env and credentials.json are on
+# your computer. Everyone makes their own from paths.example.json.
+paths.json
+
+# ── UNUSED FILES (kept on this computer only) ──
+# The old Google Apps Script this app was ported from. The app
+# doesn't use it; it's only kept as a reference.
+original_appscript.js
+
 # ── ENVIRONMENT VARIABLES ──
 # If you ever store API keys or secrets in a .env file,
 # this makes sure they never get uploaded.
